@@ -5,8 +5,10 @@ import com.trade.utils.easytrade.model.Transaction;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +20,10 @@ public abstract class AbstractStatementDocumentImpl implements StatementDocument
 
     private static final DateTimeFormatter TRANSACTION_DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss");
+
+    /** some record doesn't have time associated with it */
+    private static final DateTimeFormatter TRANSACTION_DATE_FORMATTER
+            = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     /**
      * @return table tag that contains headers and transactions
@@ -49,6 +55,16 @@ public abstract class AbstractStatementDocumentImpl implements StatementDocument
         return transactions;
     }
 
+    private LocalDateTime getTransactionDateTime(String transactionDateTimeStr) {
+        try {
+            return LocalDateTime.parse(transactionDateTimeStr, TRANSACTION_DATE_TIME_FORMATTER);
+        } catch (DateTimeParseException e) {
+            // some records are without time
+            return LocalDate.parse(transactionDateTimeStr, TRANSACTION_DATE_FORMATTER)
+                    .atStartOfDay();
+        }
+    }
+
     /**
      * Parse row details and creates transaction
      * @param transactionRow transaction row details
@@ -56,8 +72,7 @@ public abstract class AbstractStatementDocumentImpl implements StatementDocument
      */
     private Transaction buildTransaction(Element transactionRow) {
         String transactionDateTimeStr = transactionRow.child(0).text();
-        LocalDateTime transactionDateTime = LocalDateTime.parse(
-                transactionDateTimeStr, TRANSACTION_DATE_TIME_FORMATTER);
+        LocalDateTime transactionDateTime = getTransactionDateTime(transactionDateTimeStr);
 
         String scripCode = transactionRow.child(1).text();
         String scripName = transactionRow.child(2).text();
