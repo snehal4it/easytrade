@@ -57,4 +57,74 @@ CREATE TABLE transaction_audit (
 );
 GRANT SELECT, INSERT, UPDATE ON transaction_audit TO easytrade_app;
 
+CREATE TABLE scrip_mapping (
+    original_name CHARACTER VARYING(256) NOT NULL,
+    mapped_name CHARACTER VARYING(256) NOT NULL,
+    CONSTRAINT scrip_mapping_uk PRIMARY KEY(original_name)
+);
+GRANT SELECT, INSERT, UPDATE ON scrip_mapping TO easytrade_app;
+
+CREATE TABLE config (
+    name CHARACTER VARYING(128) NOT NULL,
+    value CHARACTER VARYING(128) NOT NULL,
+    description CHARACTER VARYING(256)
+);
+GRANT SELECT ON config TO easytrade_app;
+
+CREATE SEQUENCE sell_transaction_id_seq;
+GRANT USAGE, SELECT ON sell_transaction_id_seq TO easytrade_app;
+
+CREATE TABLE sell_transaction (
+  id BIGINT NOT NULL DEFAULT NEXTVAL('sell_transaction_id_seq'),
+  transaction_audit_id BIGINT,
+  parent_id BIGINT,
+  transaction_date DATE NOT NULL,
+  scrip_name CHARACTER VARYING(256) NOT NULL,
+  old_mapped_name CHARACTER VARYING(256) NOT NULL, -- mapped name at the time of entry is created
+  quantity INTEGER NOT NULL,
+  market_price NUMERIC(10,2) NOT NULL,
+  transaction_price NUMERIC(10,2) NOT NULL,
+  status NUMERIC(3) NOT NULL DEFAULT 10,
+  CONSTRAINT sell_transaction_pk PRIMARY KEY(id),
+  CONSTRAINT sell_transaction_scrip_mapping_fk FOREIGN KEY(scrip_name)
+    REFERENCES scrip_mapping(original_name),
+  CONSTRAINT sell_transaction_audit_fk FOREIGN KEY(transaction_audit_id)
+    REFERENCES transaction_audit(id),
+  CONSTRAINT sell_transaction_parent_fk FOREIGN KEY(parent_id)
+    REFERENCES sell_transaction(id),
+  CONSTRAINT sell_transaction_status_fk FOREIGN KEY(status)
+    REFERENCES transaction_status(id)
+);
+GRANT SELECT, INSERT, UPDATE ON sell_transaction TO easytrade_app;
+
+CREATE SEQUENCE buy_transaction_id_seq;
+GRANT USAGE, SELECT ON buy_transaction_id_seq TO easytrade_app;
+
+CREATE TABLE buy_transaction (
+  id BIGINT NOT NULL DEFAULT NEXTVAL('buy_transaction_id_seq'),
+  transaction_audit_id BIGINT,
+  parent_id BIGINT,
+  transaction_date DATE NOT NULL,
+  scrip_name CHARACTER VARYING(256) NOT NULL,
+  old_mapped_name CHARACTER VARYING(256) NOT NULL, -- mapped name at the time of entry is created
+  quantity INTEGER NOT NULL,
+  market_price NUMERIC(10,2) NOT NULL,
+  transaction_price NUMERIC(10,2) NOT NULL,
+  status NUMERIC(3) NOT NULL DEFAULT 10,
+  sell_transaction_id BIGINT,
+  CONSTRAINT buy_transaction_pk PRIMARY KEY(id),
+  CONSTRAINT buy_transaction_scrip_mapping_fk FOREIGN KEY(scrip_name)
+    REFERENCES scrip_mapping(original_name),
+  CONSTRAINT buy_transaction_audit_fk FOREIGN KEY(transaction_audit_id)
+    REFERENCES transaction_audit(id),
+  CONSTRAINT buy_transaction_parent_fk FOREIGN KEY(parent_id)
+    REFERENCES buy_transaction(id),
+  CONSTRAINT buy_transaction_status_fk FOREIGN KEY(status)
+    REFERENCES transaction_status(id),
+  CONSTRAINT buy_transaction_mapping_fk FOREIGN KEY(sell_transaction_id)
+    REFERENCES sell_transaction(id)
+);
+GRANT SELECT, INSERT, UPDATE ON buy_transaction TO easytrade_app;
+
+
 
