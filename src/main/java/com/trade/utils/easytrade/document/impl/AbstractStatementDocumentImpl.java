@@ -21,6 +21,9 @@ public abstract class AbstractStatementDocumentImpl implements StatementDocument
     private static final DateTimeFormatter TRANSACTION_DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss");
 
+    private static final DateTimeFormatter TRANSACTION_DATE_TIME_FORMATTER_V2
+            = DateTimeFormatter.ofPattern("M/d/yyyy H:m");
+
     /** some record doesn't have time associated with it */
     private static final DateTimeFormatter TRANSACTION_DATE_FORMATTER
             = DateTimeFormatter.ofPattern("dd MMM yyyy");
@@ -59,9 +62,13 @@ public abstract class AbstractStatementDocumentImpl implements StatementDocument
         try {
             return LocalDateTime.parse(transactionDateTimeStr, TRANSACTION_DATE_TIME_FORMATTER);
         } catch (DateTimeParseException e) {
-            // some records are without time
-            return LocalDate.parse(transactionDateTimeStr, TRANSACTION_DATE_FORMATTER)
-                    .atStartOfDay();
+            try {
+                // some records are without time
+                return LocalDate.parse(transactionDateTimeStr, TRANSACTION_DATE_FORMATTER)
+                        .atStartOfDay();
+            } catch (DateTimeParseException e2) {
+                return LocalDateTime.parse(transactionDateTimeStr, TRANSACTION_DATE_TIME_FORMATTER_V2);
+            }
         }
     }
 
