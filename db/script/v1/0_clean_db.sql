@@ -1,4 +1,11 @@
+drop function merge_buy_transaction_by_date;
+drop function merge_sell_transaction_by_date;
+drop function process_transaction_audit;
+drop function process_transaction_audit_batch;
+
+drop table if exists buy_transaction_link;
 drop table if exists buy_transaction;
+drop table if exists sell_transaction_link;
 drop table if exists sell_transaction;
 drop table if exists config;
 drop table if exists scrip_mapping;

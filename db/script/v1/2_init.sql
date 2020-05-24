@@ -77,7 +77,6 @@ GRANT USAGE, SELECT ON sell_transaction_id_seq TO easytrade_app;
 CREATE TABLE sell_transaction (
   id BIGINT NOT NULL DEFAULT NEXTVAL('sell_transaction_id_seq'),
   transaction_audit_id BIGINT,
-  parent_id BIGINT,
   transaction_date DATE NOT NULL,
   scrip_name CHARACTER VARYING(256) NOT NULL,
   old_mapped_name CHARACTER VARYING(256) NOT NULL, -- mapped name at the time of entry is created
@@ -85,17 +84,29 @@ CREATE TABLE sell_transaction (
   market_price NUMERIC(10,2) NOT NULL,
   transaction_price NUMERIC(10,2) NOT NULL,
   status NUMERIC(3) NOT NULL DEFAULT 10,
+  created_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+  updated_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
   CONSTRAINT sell_transaction_pk PRIMARY KEY(id),
   CONSTRAINT sell_transaction_scrip_mapping_fk FOREIGN KEY(scrip_name)
     REFERENCES scrip_mapping(original_name),
   CONSTRAINT sell_transaction_audit_fk FOREIGN KEY(transaction_audit_id)
     REFERENCES transaction_audit(id),
-  CONSTRAINT sell_transaction_parent_fk FOREIGN KEY(parent_id)
-    REFERENCES sell_transaction(id),
   CONSTRAINT sell_transaction_status_fk FOREIGN KEY(status)
     REFERENCES transaction_status(id)
 );
 GRANT SELECT, INSERT, UPDATE ON sell_transaction TO easytrade_app;
+
+CREATE TABLE sell_transaction_link (
+  source_id BIGINT NOT NULL,
+  target_id BIGINT NOT NULL,
+  created_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+  CONSTRAINT sell_transaction_link_pk PRIMARY KEY(source_id, target_id),
+  CONSTRAINT sell_transaction_link_source_fk FOREIGN KEY(source_id)
+    REFERENCES sell_transaction(id),
+  CONSTRAINT sell_transaction_link_target_fk FOREIGN KEY(target_id)
+    REFERENCES sell_transaction(id)
+);
+GRANT SELECT, INSERT ON sell_transaction_link TO easytrade_app;
 
 CREATE SEQUENCE buy_transaction_id_seq;
 GRANT USAGE, SELECT ON buy_transaction_id_seq TO easytrade_app;
@@ -103,7 +114,6 @@ GRANT USAGE, SELECT ON buy_transaction_id_seq TO easytrade_app;
 CREATE TABLE buy_transaction (
   id BIGINT NOT NULL DEFAULT NEXTVAL('buy_transaction_id_seq'),
   transaction_audit_id BIGINT,
-  parent_id BIGINT,
   transaction_date DATE NOT NULL,
   scrip_name CHARACTER VARYING(256) NOT NULL,
   old_mapped_name CHARACTER VARYING(256) NOT NULL, -- mapped name at the time of entry is created
@@ -112,19 +122,31 @@ CREATE TABLE buy_transaction (
   transaction_price NUMERIC(10,2) NOT NULL,
   status NUMERIC(3) NOT NULL DEFAULT 10,
   sell_transaction_id BIGINT,
+  created_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+  updated_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
   CONSTRAINT buy_transaction_pk PRIMARY KEY(id),
   CONSTRAINT buy_transaction_scrip_mapping_fk FOREIGN KEY(scrip_name)
     REFERENCES scrip_mapping(original_name),
   CONSTRAINT buy_transaction_audit_fk FOREIGN KEY(transaction_audit_id)
     REFERENCES transaction_audit(id),
-  CONSTRAINT buy_transaction_parent_fk FOREIGN KEY(parent_id)
-    REFERENCES buy_transaction(id),
   CONSTRAINT buy_transaction_status_fk FOREIGN KEY(status)
     REFERENCES transaction_status(id),
   CONSTRAINT buy_transaction_mapping_fk FOREIGN KEY(sell_transaction_id)
     REFERENCES sell_transaction(id)
 );
 GRANT SELECT, INSERT, UPDATE ON buy_transaction TO easytrade_app;
+
+CREATE TABLE buy_transaction_link (
+  source_id BIGINT NOT NULL,
+  target_id BIGINT NOT NULL,
+  created_ts TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+  CONSTRAINT buy_transaction_link_pk PRIMARY KEY(source_id, target_id),
+  CONSTRAINT buy_transaction_link_source_fk FOREIGN KEY(source_id)
+    REFERENCES buy_transaction(id),
+  CONSTRAINT buy_transaction_link_target_fk FOREIGN KEY(target_id)
+    REFERENCES buy_transaction(id)
+);
+GRANT SELECT, INSERT ON buy_transaction_link TO easytrade_app;
 
 
 
