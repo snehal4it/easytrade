@@ -15,3 +15,6 @@ values (100, 'MERGED_SYNTHETIC', 'synthetic merge for simplified processing'),
 
 insert into config (name, value, description)
 values ('TRANSACTION_AUDIT_BATCH_SIZE', '50', 'batch size for processing transaction audit records');
+
+insert into config (name, value, description)
+values ('MATCH_TRANSACTION_BATCH_SIZE', '50', 'batch size for matching transaction records');
