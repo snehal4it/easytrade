@@ -43,7 +43,7 @@ BEGIN
         and scrip_name = transaction_details.scrip_name;
 
         -- update existing records as merged
-        update buy_transaction set status = 100
+        update buy_transaction set status = 150
         where status = 10
         and transaction_date = transaction_details.transaction_date
         and scrip_name = transaction_details.scrip_name;
@@ -98,7 +98,7 @@ BEGIN
         and scrip_name = transaction_details.scrip_name;
 
         -- update existing records as merged
-        update sell_transaction set status = 100
+        update sell_transaction set status = 150
         where status = 10
         and transaction_date = transaction_details.transaction_date
         and scrip_name = transaction_details.scrip_name;
