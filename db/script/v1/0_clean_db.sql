@@ -1,7 +1,7 @@
-drop function merge_buy_transaction_by_date;
-drop function merge_sell_transaction_by_date;
-drop function process_transaction_audit;
-drop function process_transaction_audit_batch;
+drop function if exists merge_buy_transaction_by_date;
+drop function if exists merge_sell_transaction_by_date;
+drop function if exists process_transaction_audit;
+drop function if exists process_transaction_audit_batch;
 
 drop table if exists buy_transaction_link;
 drop table if exists buy_transaction;
