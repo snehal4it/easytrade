@@ -1,4 +1,4 @@
-drop function if exists merge_buy_transaction_by_date;
+drop function if exists process_buy_transaction;
 drop function if exists merge_sell_transaction_by_date;
 drop function if exists process_transaction_audit;
 drop function if exists process_transaction_audit_batch;

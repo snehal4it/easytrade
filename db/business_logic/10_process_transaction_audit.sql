@@ -31,10 +31,10 @@ BEGIN
             WHERE original_name = transaction_details.scrip_name;
 
         IF upper(transaction_details.transaction_type) = 'B' OR upper(transaction_details.transaction_type) = 'BUY' THEN
-            INSERT INTO buy_transaction (transaction_audit_id, transaction_date, scrip_name, old_mapped_name,
-                quantity, market_price, transaction_price)
-            VALUES (transaction_details.id, trans_date, transaction_details.scrip_name, mapped_scrip_name,
-                transaction_details.quantity, transaction_details.market_price, transaction_details.transaction_price);
+            INSERT INTO buy_transaction (transaction_audit_id, transaction_date, scrip_name,
+                old_mapped_name, quantity, market_price, transaction_price)
+            VALUES (transaction_details.id, transaction_details.transaction_date_time, transaction_details.scrip_name,
+            mapped_scrip_name, transaction_details.quantity, transaction_details.market_price, transaction_details.transaction_price);
         ELSIF upper(transaction_details.transaction_type) = 'S'
             OR upper(transaction_details.transaction_type) = 'SELL' THEN
             INSERT INTO sell_transaction (transaction_audit_id, transaction_date, scrip_name, old_mapped_name,

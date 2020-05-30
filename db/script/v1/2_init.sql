@@ -114,7 +114,7 @@ GRANT USAGE, SELECT ON buy_transaction_id_seq TO easytrade_app;
 CREATE TABLE buy_transaction (
   id BIGINT NOT NULL DEFAULT NEXTVAL('buy_transaction_id_seq'),
   transaction_audit_id BIGINT,
-  transaction_date DATE NOT NULL,
+  transaction_date TIMESTAMP WITHOUT TIME ZONE,
   scrip_name CHARACTER VARYING(256) NOT NULL,
   old_mapped_name CHARACTER VARYING(256) NOT NULL, -- mapped name at the time of entry is created
   quantity INTEGER NOT NULL,

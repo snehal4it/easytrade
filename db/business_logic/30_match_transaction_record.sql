@@ -61,6 +61,7 @@ BEGIN
 
                 -- mark existing record as split
                 UPDATE buy_transaction set status = 160 where id = buy_trans.id;
+
                 INSERT INTO buy_transaction_link (source_id, target_id)
                 VALUES (buy_trans.id, split_trans_id1),
                 (buy_trans.id, split_trans_id2);
