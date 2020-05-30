@@ -33,3 +33,4 @@ build/
 ref/
 
 .mvn
+/report/
