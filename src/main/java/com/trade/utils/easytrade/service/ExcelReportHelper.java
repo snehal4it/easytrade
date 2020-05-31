@@ -1,14 +1,11 @@
 package com.trade.utils.easytrade.service;
 
-import com.trade.utils.easytrade.model.report.TransactionRecord;
-
-import java.util.List;
-import java.util.Map;
+import com.trade.utils.easytrade.model.report.ReportDetails;
 
 public interface ExcelReportHelper {
     /**
      * Generate excel file with input details at predefined location
-     * @param mappedTransactions mapped transaction details
+     * @param reportDetails mapped transaction details
      */
-    void generateMappedTransactionsReport(Map<TransactionRecord, List<TransactionRecord>> mappedTransactions);
+    void generateMappedTransactionsReport(ReportDetails reportDetails);
 }

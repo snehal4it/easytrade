@@ -1,6 +1,7 @@
 package com.trade.utils.easytrade.service.impl;
 
 import com.trade.utils.easytrade.dao.ReportDao;
+import com.trade.utils.easytrade.model.report.ReportDetails;
 import com.trade.utils.easytrade.model.report.TransactionRecord;
 import com.trade.utils.easytrade.service.ExcelReportHelper;
 import com.trade.utils.easytrade.service.ReportService;
@@ -25,6 +26,12 @@ public class ReportServiceImpl implements ReportService {
         Map<TransactionRecord, List<TransactionRecord>> mappedTransactions = reportDao
                 .getMappedTransactions(startDate, endDate);
 
-        excelReportHelper.generateMappedTransactionsReport(mappedTransactions);
+        ReportDetails reportDetails = ReportDetails.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .mappedTransactions(mappedTransactions)
+                .build();
+
+        excelReportHelper.generateMappedTransactionsReport(reportDetails);
     }
 }
