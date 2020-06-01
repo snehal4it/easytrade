@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
-@Builder
+@Builder(toBuilder = true)
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TransactionRecord {
@@ -20,4 +20,8 @@ public class TransactionRecord {
     private int quantity;
 
     private double unitPrice;
+
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
 }

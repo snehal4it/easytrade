@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.collections4.MapUtils.isEmpty;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 @Scope(SCOPE_PROTOTYPE)
@@ -34,11 +35,22 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
     public static final int BUY_TRANS_SUM_AMOUNT_CELL_NUM = BUY_TRANS_BASE_CELL_NUM + TRANS_DETAILS_CELL_COUNT + 1;
     public static final int CG_CELL_NUM = BUY_TRANS_SUM_AMOUNT_CELL_NUM + 2;
 
+    public static final int SELL_TRANS_TOTAL_AMOUNT_CELL = SELL_TRANS_BASE_CELL_NUM + TRANS_DETAILS_CELL_COUNT;
+
     private Map<TransactionRecord, List<TransactionRecord>> mappedTransactions;
 
     private SXSSFWorkbook workbook;
 
     private SXSSFSheet sheet;
+
+    private Cell firstCGCell = null;
+    private Cell lastCGSell = null;
+
+    private Cell firstSellTransTotalAmountCell = null;
+    private Cell lastSellTransTotalAmountCell = null;
+
+    private Cell firstBuyTransactionSumAmountCell = null;
+    private Cell lastBuyTransactionSumAmountCell = null;
 
     @Override
     public void createSpreadSheet(String name) {
@@ -47,6 +59,11 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
         checkNotNull(mappedTransactions);
 
         sheet = workbook.createSheet(name);
+        if (isEmpty(mappedTransactions)) {
+            // if no transaction, return
+            return;
+        }
+
         sheet.trackAllColumnsForAutoSizing();
 
         createTransactionDetails();
@@ -57,8 +74,7 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
     private void createTransactionDetails() {
         int rowNum = DATA_START_ROW_NUM;
         int id = 1;
-        Cell firstCGCell = null;
-        Cell lastCGSell = null;
+
         for (Map.Entry<TransactionRecord, List<TransactionRecord>> mappedTransaction : mappedTransactions.entrySet()) {
             TransactionRecord sellTransaction = mappedTransaction.getKey();
 
@@ -72,6 +88,11 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
 
             List<Cell> sellTransactionCells = createTransactionDetails(row, SELL_TRANS_BASE_CELL_NUM, sellTransaction);
             Cell sellTransTotalAmountCell = sellTransactionCells.get(sellTransactionCells.size() - 1);
+
+            if (firstSellTransTotalAmountCell == null) {
+                firstSellTransTotalAmountCell = sellTransTotalAmountCell;
+            }
+            lastSellTransTotalAmountCell = sellTransTotalAmountCell;
 
             Cell firstBuyTransTotalAmountCell = null;
             Cell lastBuyTransTotalAmountCell = null;
@@ -93,6 +114,11 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
             Cell buyTransactionSumAmountCell = row.createCell(BUY_TRANS_SUM_AMOUNT_CELL_NUM);
             buyTransactionSumAmountCell.setCellFormula(totalPriceFormula);
 
+            if (firstBuyTransactionSumAmountCell == null) {
+                firstBuyTransactionSumAmountCell = buyTransactionSumAmountCell;
+            }
+            lastBuyTransactionSumAmountCell = buyTransactionSumAmountCell;
+
             String cgFormula = "ROUND (" + getRef(sellTransTotalAmountCell)
                     + " - " + getRef(buyTransactionSumAmountCell) + ", 2)";
             Cell cgCell = row.createCell(CG_CELL_NUM);
@@ -107,11 +133,27 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
             id++;
         }
 
-        createTotalCapitalGainCell(firstCGCell, lastCGSell, rowNum);
+        Row row = sheet.createRow(rowNum);
+        createTotalSellAmountCell(row);
+        createTotalBuyAmountCell(row);
+        createTotalCapitalGainCell(row);
     }
 
-    private void createTotalCapitalGainCell(Cell firstCGCell, Cell lastCGSell, int rowNum) {
-        Row row = sheet.createRow(rowNum);
+    private void createTotalBuyAmountCell(Row row) {
+        String totalBuyAmountFormula = "ROUND (SUM (" + getRef(firstBuyTransactionSumAmountCell)
+                + ":" + getRef(lastBuyTransactionSumAmountCell) + "), 2)";
+        Cell totalBuyTranAmountCell = row.createCell(BUY_TRANS_SUM_AMOUNT_CELL_NUM);
+        totalBuyTranAmountCell.setCellFormula(totalBuyAmountFormula);
+    }
+
+    private void createTotalSellAmountCell(Row row) {
+        String totalSellAmountFormula = "ROUND (SUM (" + getRef(firstSellTransTotalAmountCell)
+                + ":" + getRef(lastSellTransTotalAmountCell) + "), 2)";
+        Cell totalSellTranAmountCell = row.createCell(SELL_TRANS_TOTAL_AMOUNT_CELL);
+        totalSellTranAmountCell.setCellFormula(totalSellAmountFormula);
+    }
+
+    private void createTotalCapitalGainCell(Row row) {
         String totalCGFormula = "ROUND (SUM (" + getRef(firstCGCell)
                 + ":" + getRef(lastCGSell) + "), 2)";
         Cell cgCell = row.createCell(CG_CELL_NUM);
@@ -120,9 +162,8 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
 
     private void adjustColumnWidth() {
         IntStream.range(1, CG_CELL_NUM).forEach(colNum -> {
-            if (colNum == (SELL_TRANS_BASE_CELL_NUM + TRANS_DETAILS_CELL_COUNT)
-                    || colNum >= (BUY_TRANS_SUM_AMOUNT_CELL_NUM - 1)) {
-                sheet.setColumnWidth(colNum, 15);
+            if (colNum == SELL_TRANS_TOTAL_AMOUNT_CELL || colNum >= (BUY_TRANS_SUM_AMOUNT_CELL_NUM - 1)) {
+                sheet.setColumnWidth(colNum, 18);
             } else {
                 sheet.autoSizeColumn(colNum);
             }
