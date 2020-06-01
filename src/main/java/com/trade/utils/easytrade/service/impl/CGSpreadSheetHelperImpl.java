@@ -109,8 +109,8 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
                 buyTransactionRow = sheet.createRow(rowNum);
             }
 
-            String totalPriceFormula = "ROUND (SUM (" + getRef(firstBuyTransTotalAmountCell)
-                    + ":" + getRef(lastBuyTransTotalAmountCell) + "), 2)";
+            String totalPriceFormula = "ROUND(SUM(" + getRef(firstBuyTransTotalAmountCell)
+                    + ":" + getRef(lastBuyTransTotalAmountCell) + "),2)";
             Cell buyTransactionSumAmountCell = row.createCell(BUY_TRANS_SUM_AMOUNT_CELL_NUM);
             buyTransactionSumAmountCell.setCellFormula(totalPriceFormula);
 
@@ -119,8 +119,8 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
             }
             lastBuyTransactionSumAmountCell = buyTransactionSumAmountCell;
 
-            String cgFormula = "ROUND (" + getRef(sellTransTotalAmountCell)
-                    + " - " + getRef(buyTransactionSumAmountCell) + ", 2)";
+            String cgFormula = "ROUND(" + getRef(sellTransTotalAmountCell)
+                    + "-" + getRef(buyTransactionSumAmountCell) + ",2)";
             Cell cgCell = row.createCell(CG_CELL_NUM);
             cgCell.setCellFormula(cgFormula);
 
@@ -140,22 +140,22 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
     }
 
     private void createTotalBuyAmountCell(Row row) {
-        String totalBuyAmountFormula = "ROUND (SUM (" + getRef(firstBuyTransactionSumAmountCell)
-                + ":" + getRef(lastBuyTransactionSumAmountCell) + "), 2)";
+        String totalBuyAmountFormula = "ROUND(SUM(" + getRef(firstBuyTransactionSumAmountCell)
+                + ":" + getRef(lastBuyTransactionSumAmountCell) + "),2)";
         Cell totalBuyTranAmountCell = row.createCell(BUY_TRANS_SUM_AMOUNT_CELL_NUM);
         totalBuyTranAmountCell.setCellFormula(totalBuyAmountFormula);
     }
 
     private void createTotalSellAmountCell(Row row) {
-        String totalSellAmountFormula = "ROUND (SUM (" + getRef(firstSellTransTotalAmountCell)
-                + ":" + getRef(lastSellTransTotalAmountCell) + "), 2)";
+        String totalSellAmountFormula = "ROUND(SUM(" + getRef(firstSellTransTotalAmountCell)
+                + ":" + getRef(lastSellTransTotalAmountCell) + "),2)";
         Cell totalSellTranAmountCell = row.createCell(SELL_TRANS_TOTAL_AMOUNT_CELL);
         totalSellTranAmountCell.setCellFormula(totalSellAmountFormula);
     }
 
     private void createTotalCapitalGainCell(Row row) {
-        String totalCGFormula = "ROUND (SUM (" + getRef(firstCGCell)
-                + ":" + getRef(lastCGSell) + "), 2)";
+        String totalCGFormula = "ROUND(SUM(" + getRef(firstCGCell)
+                + ":" + getRef(lastCGSell) + "),2)";
         Cell cgCell = row.createCell(CG_CELL_NUM);
         cgCell.setCellFormula(totalCGFormula);
     }
@@ -163,7 +163,7 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
     private void adjustColumnWidth() {
         IntStream.range(1, CG_CELL_NUM).forEach(colNum -> {
             if (colNum == SELL_TRANS_TOTAL_AMOUNT_CELL || colNum >= (BUY_TRANS_SUM_AMOUNT_CELL_NUM - 1)) {
-                sheet.setColumnWidth(colNum, 18);
+                sheet.setColumnWidth(colNum, 12 * 256);
             } else {
                 sheet.autoSizeColumn(colNum);
             }
@@ -193,7 +193,7 @@ public class CGSpreadSheetHelperImpl implements CGSpreadSheetHelper {
         unitPriceCell.setCellValue(record.getUnitPrice());
         colNum++;
 
-        String totalPriceFormula = "ROUND (" + getRef(quantityCell) + " * " + getRef(unitPriceCell) + ", 2)";
+        String totalPriceFormula = "ROUND(" + getRef(quantityCell) + "*" + getRef(unitPriceCell) + ",2)";
 
         Cell totalPriceCell = row.createCell(colNum);
         totalPriceCell.setCellFormula(totalPriceFormula);
