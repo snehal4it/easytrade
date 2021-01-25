@@ -67,6 +67,9 @@ values('SBI-ETF NIFTY', 'SBI ETF Nifty 50'),
 ('VOLTAS LTD. FV1', 'Voltas Ltd.'),
 ('HDFC BANK LTD FV1', 'HDFC Bank Ltd.');
 
+insert into scrip_mapping (original_name, mapped_name)
+values('YES BANK LTD FV2 NEW', 'YES Bank Ltd.');
+
 
 
 
