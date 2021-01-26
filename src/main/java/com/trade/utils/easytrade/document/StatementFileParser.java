@@ -1,8 +1,8 @@
 package com.trade.utils.easytrade.document;
 
-import com.trade.utils.easytrade.model.Transaction;
+import com.trade.utils.easytrade.model.StatementFile;
 
-import java.util.List;
+import java.io.InputStream;
 
 /**
  * Parse statement file
@@ -10,9 +10,9 @@ import java.util.List;
 public interface StatementFileParser {
 
     /**
-     * Parses statement documents
-     * @param fileContent content of file
-     * @return list of transactions in document
+     * Parses statement document from input stream
+     * @param inputStream content of file
+     * @return parsed statement file result holder
      */
-    List<Transaction> parse(String fileContent);
+    StatementFile parse(InputStream inputStream);
 }

@@ -8,13 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-import static com.trade.utils.easytrade.util.Constant.STATEMENT_DOCUMENT_HEADERS;
+import static com.trade.utils.easytrade.util.Constant.EXCEL_DOCUMENT_HEADERS;
 
-/**
- * Basic statement document validation implementation.
- */
 @Named
-public class StatementDocumentValidatorImpl implements StatementDocumentValidator {
+public class ExcelDocumentValidatorImpl implements StatementDocumentValidator {
 
     @Inject
     private TransactionValidatorImpl transactionValidator;
@@ -26,10 +23,10 @@ public class StatementDocumentValidatorImpl implements StatementDocumentValidato
         }
 
         List<String> headers = statementDocument.getHeaders();
-        if (!STATEMENT_DOCUMENT_HEADERS.equals(headers)) {
+        if (!EXCEL_DOCUMENT_HEADERS.equals(headers)) {
             String errorMessage = String.format(
-                    "document headers are different, expected %s, actual %s",
-                    STATEMENT_DOCUMENT_HEADERS, headers);
+                    "excel document headers are different, expected %s, actual %s",
+                    EXCEL_DOCUMENT_HEADERS, headers);
             throw new ValidationException(errorMessage);
         }
 

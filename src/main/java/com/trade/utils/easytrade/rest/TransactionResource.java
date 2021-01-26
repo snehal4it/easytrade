@@ -3,12 +3,10 @@ package com.trade.utils.easytrade.rest;
 import com.trade.utils.easytrade.document.DocumentVersionFactory;
 import com.trade.utils.easytrade.document.StatementDocument;
 import com.trade.utils.easytrade.service.TransactionService;
-import com.trade.utils.easytrade.util.IOUtil;
 import com.trade.utils.easytrade.validate.StatementDocumentValidator;
+import com.trade.utils.easytrade.validate.StatementDocumentValidatorFactory;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +25,7 @@ public class TransactionResource {
     private DocumentVersionFactory documentVersionFactory;
 
     @Inject
-    private StatementDocumentValidator statementDocumentValidator;
+    private StatementDocumentValidatorFactory statementDocumentValidatorFactory;
 
     @Inject
     private TransactionService transactionService;
@@ -37,10 +35,10 @@ public class TransactionResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response createTransactions(@FormDataParam("file") InputStream inputStream,
                                        @FormDataParam("file") FormDataContentDisposition fileDisposition) {
-        String xmlString = IOUtil.getFileContent(inputStream);
-        Document htmlDocument = Jsoup.parse(xmlString);
 
-        StatementDocument statementDocument = documentVersionFactory.createStatementDocument(htmlDocument);
+        StatementDocument statementDocument = documentVersionFactory.createStatementDocument(inputStream);
+        StatementDocumentValidator statementDocumentValidator = statementDocumentValidatorFactory
+                .create(statementDocument);
         statementDocumentValidator.validate(statementDocument);
 
         transactionService.save(fileDisposition.getFileName(), statementDocument);
